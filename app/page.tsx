@@ -126,36 +126,44 @@ export default function Home() {
   const [open, setOpen] = useState(false)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const createPaymentIntent = async () => {
-      try {
-        const res = await fetch(
-          "https://unlaudative-gushingly-nickolas.ngrok-free.dev/api/payment-intent",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount: 5000 }) // £50
-          }
-        );
+  // Function to open payment modal and create PaymentIntent
+  const openPaymentModal = async (amount: number = 5000) => {
+    setIsLoading(true);
+    setError(null);
 
-        if (!res.ok) {
-          throw new Error('Failed to create payment intent');
+    try {
+      const res = await fetch(
+        "https://unlaudative-gushingly-nickolas.ngrok-free.dev/api/payment-intent",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount })
         }
+      );
 
-        const data = await res.json();
-        setClientSecret(data.clientSecret);
-        setPaymentModalOpen(true); // Auto-open modal on load
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to initialize payment');
-      } finally {
-        setIsLoading(false);
+      if (!res.ok) {
+        throw new Error('Failed to create payment intent');
       }
-    };
 
-    createPaymentIntent();
+      const data = await res.json();
+      setClientSecret(data.clientSecret);
+      setPaymentModalOpen(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to initialize payment');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Make openPaymentModal available globally for the voice agent
+  useEffect(() => {
+    (window as any).openPaymentModal = openPaymentModal;
+    return () => {
+      delete (window as any).openPaymentModal;
+    };
   }, [])
 
   return (
