@@ -134,6 +134,14 @@ export default function VoiceChatDrawer({ isOpen, onClose }: VoiceChatDrawerProp
         // Trigger the payment modal
         if (typeof window !== 'undefined' && (window as any).openPaymentModal) {
           (window as any).openPaymentModal(parameters.amount || 5000)
+
+          // Send contextual update to agent about modal opening
+          conversation.sendContextualUpdate?.(
+            `Payment modal has been opened for ${parameters.description || "late checkout"}. User is now viewing the Stripe payment form with amount £${(parameters.amount || 5000) / 100}.`
+          )
+
+          // Send user activity to prevent agent interruption
+          conversation.sendUserActivity?.()
         }
 
         // Return a confirmation message to the agent
@@ -317,6 +325,18 @@ export default function VoiceChatDrawer({ isOpen, onClose }: VoiceChatDrawerProp
 
     handleAutoConnect()
   }, [isOpen, agentState, conversation, startConversation])
+
+  // Expose sendContextualUpdate globally for payment modal
+  useEffect(() => {
+    (window as any).sendAgentContextualUpdate = (message: string) => {
+      conversation.sendContextualUpdate?.(message);
+      conversation.sendUserActivity?.();
+    };
+
+    return () => {
+      delete (window as any).sendAgentContextualUpdate;
+    };
+  }, [conversation]);
 
   useEffect(() => {
     return () => {
