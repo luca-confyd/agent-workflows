@@ -237,8 +237,13 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className="relative h-screen pt-20">
-        <div className="absolute inset-0 bg-neutral-900">
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/40 to-neutral-900/80"></div>
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80"
+            alt="Luxury boutique hotel lobby"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/50 to-neutral-900/70"></div>
         </div>
         <div className="relative h-full flex items-center justify-center px-6">
           <div className="text-center max-w-4xl">
@@ -396,7 +401,7 @@ export default function Home() {
             setOpen(false);
           }
         }}
-        className="relative z-10"
+        className="relative z-50"
       >
         <div className="fixed inset-0" />
 
@@ -449,7 +454,7 @@ export default function Home() {
       </Dialog>
 
       {/* Payment Modal */}
-      <Dialog open={paymentModalOpen && !!clientSecret} onClose={() => closePaymentModal('cancelled')} className="relative z-50">
+      <Dialog open={paymentModalOpen && !!clientSecret} onClose={() => closePaymentModal('cancelled')} className="relative z-[60]">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
         <div className="fixed inset-0 flex items-center justify-center p-5">
