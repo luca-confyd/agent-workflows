@@ -36,6 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { BarVisualizer } from "@/components/ui/bar-visualizer"
 
 type SystemMessageType = "initial" | "connecting" | "connected" | "error"
 
@@ -108,9 +109,10 @@ const ChatAction = ({
 
 interface VoiceChatDrawerProps {
   isOpen: boolean
+  onClose: () => void
 }
 
-export default function VoiceChatDrawer({ isOpen }: VoiceChatDrawerProps) {
+export default function VoiceChatDrawer({ isOpen, onClose }: VoiceChatDrawerProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [agentState, setAgentState] = useState<
     "disconnected" | "connecting" | "connected" | "disconnecting" | null
@@ -231,8 +233,11 @@ export default function VoiceChatDrawer({ isOpen }: VoiceChatDrawerProps) {
         mediaStreamRef.current.getTracks().forEach((t) => t.stop())
         mediaStreamRef.current = null
       }
+
+      // Close the drawer when ending the call
+      onClose()
     }
-  }, [agentState, conversation, startConversation])
+  }, [agentState, conversation, startConversation, onClose])
 
   const handleTextInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -381,25 +386,29 @@ export default function VoiceChatDrawer({ isOpen }: VoiceChatDrawerProps) {
         <Conversation className="h-full">
           <ConversationContent className="flex min-w-0 flex-col gap-2 p-6 pb-2">
             {messages.length === 0 ? (
-              <ConversationEmptyState
-                icon={<Orb className="size-12" />}
-                title={
-                  agentState === "connecting" ? (
-                    <ShimmeringText text="Starting conversation" />
-                  ) : agentState === "connected" ? (
-                    <ShimmeringText text="Start talking or type" />
-                  ) : (
-                    "Start a conversation"
-                  )
-                }
-                description={
-                  agentState === "connecting"
-                    ? "Connecting..."
-                    : agentState === "connected"
-                      ? "Ready to chat"
+              agentState === "connecting" ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <BarVisualizer
+                    state="connecting"
+                    demo={true}
+                    barCount={20}
+                    centerAlign={true}
+                    className="bg-transparent border-0 shadow-none w-full"
+                  />
+                </div>
+              ) : (
+                <ConversationEmptyState
+                  icon={<Orb className="size-12" />}
+                  title={
+                    agentState === "connected" ? "" : "Start a conversation"
+                  }
+                  description={
+                    agentState === "connected"
+                      ? ""
                       : "Type a message or tap the voice button"
-                }
-              />
+                  }
+                />
+              )
             ) : (
               messages.map((message, index) => {
                 return (
