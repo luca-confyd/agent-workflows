@@ -33,7 +33,13 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
       setErrorMessage(error.message || 'An error occurred');
       setIsProcessing(false);
     } else {
-      window.location.href = `${window.location.origin}/success`;
+      // Payment successful - close modal and send user message
+      if (typeof window !== 'undefined' && (window as any).sendAgentUserMessage) {
+        (window as any).sendAgentUserMessage('Payment completed successfully for £50 late checkout.');
+      }
+      if (typeof window !== 'undefined' && (window as any).closePaymentModal) {
+        (window as any).closePaymentModal('completed');
+      }
     }
   };
 
@@ -52,11 +58,20 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
       confirmParams: {
         return_url: `${window.location.origin}/success`,
       },
+      redirect: 'if_required',
     });
 
     if (error) {
       setErrorMessage(error.message || 'An error occurred');
       setIsProcessing(false);
+    } else {
+      // Payment successful - close modal and send user message
+      if (typeof window !== 'undefined' && (window as any).sendAgentUserMessage) {
+        (window as any).sendAgentUserMessage('Payment completed successfully for £50 late checkout.');
+      }
+      if (typeof window !== 'undefined' && (window as any).closePaymentModal) {
+        (window as any).closePaymentModal('completed');
+      }
     }
   };
 
@@ -158,11 +173,40 @@ export default function Home() {
     }
   };
 
-  // Make openPaymentModal available globally for the voice agent
+  // Function to close modal and send contextual update
+  const closePaymentModal = (reason: 'cancelled' | 'completed' = 'cancelled') => {
+    setPaymentModalOpen(false);
+
+    // Send contextual update to agent
+    if (typeof window !== 'undefined' && (window as any).sendAgentContextualUpdate) {
+      const message = reason === 'completed'
+        ? 'Payment has been successfully completed. User has finished the checkout process.'
+        : 'Payment modal has been closed. User cancelled the payment process.';
+      (window as any).sendAgentContextualUpdate(message);
+    }
+  };
+
+  // Send periodic user activity while modal is open to prevent agent interruption
+  useEffect(() => {
+    if (!paymentModalOpen) return;
+
+    // Send user activity every 2 seconds while modal is open
+    const interval = setInterval(() => {
+      if (typeof window !== 'undefined' && (window as any).sendAgentUserActivity) {
+        (window as any).sendAgentUserActivity();
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [paymentModalOpen]);
+
+  // Make functions available globally for the voice agent
   useEffect(() => {
     (window as any).openPaymentModal = openPaymentModal;
+    (window as any).closePaymentModal = closePaymentModal;
     return () => {
       delete (window as any).openPaymentModal;
+      delete (window as any).closePaymentModal;
     };
   }, [])
 
@@ -384,13 +428,13 @@ export default function Home() {
       </Dialog>
 
       {/* Payment Modal */}
-      <Dialog open={paymentModalOpen && !!clientSecret} onClose={() => setPaymentModalOpen(false)} className="relative z-50">
+      <Dialog open={paymentModalOpen && !!clientSecret} onClose={() => closePaymentModal('cancelled')} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
         <div className="fixed inset-0 flex items-center justify-center p-5">
           <DialogPanel className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-8">
             <button
-              onClick={() => setPaymentModalOpen(false)}
+              onClick={() => closePaymentModal('cancelled')}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl leading-none p-1"
             >
               ✕
@@ -417,7 +461,7 @@ export default function Home() {
                   paymentMethodOrder: ['card'],
                 }}
               >
-                <CheckoutForm onClose={() => setPaymentModalOpen(false)} />
+                <CheckoutForm onClose={() => closePaymentModal('cancelled')} />
               </Elements>
             )}
           </DialogPanel>
