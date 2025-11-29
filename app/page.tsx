@@ -1,12 +1,162 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { stripePromise } from '@/lib/stripe'
 import VoiceChatDrawer from '@/components/voice-chat-drawer'
+
+function CheckoutForm({ onClose }: { onClose: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleExpressCheckout = async (event: any) => {
+    if (!stripe) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/success`,
+      },
+      redirect: 'if_required',
+    });
+
+    if (error) {
+      setErrorMessage(error.message || 'An error occurred');
+      setIsProcessing(false);
+    } else {
+      window.location.href = `${window.location.origin}/success`;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/success`,
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message || 'An error occurred');
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Apple Pay */}
+      <div>
+        <ExpressCheckoutElement
+          onConfirm={handleExpressCheckout}
+          options={{
+            wallets: {
+              applePay: 'auto',
+              googlePay: 'never',
+              paypal: 'never',
+              link: 'never',
+            },
+            buttonType: {
+              applePay: 'buy',
+            },
+          }}
+        />
+      </div>
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-2 text-gray-500">Or pay with card</span>
+        </div>
+      </div>
+
+      {/* Card Payment Form */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <PaymentElement options={{ defaultCollapsed: false }} />
+
+        {errorMessage && (
+          <div className="text-red-600 text-sm p-3 bg-red-50 rounded">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="flex gap-3 justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isProcessing}
+            className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!stripe || isProcessing}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? 'Processing...' : 'Pay £50'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 export default function Home() {
   const [open, setOpen] = useState(false)
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const createPaymentIntent = async () => {
+      try {
+        const res = await fetch(
+          "https://unlaudative-gushingly-nickolas.ngrok-free.dev/api/payment-intent",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: 5000 }) // £50
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error('Failed to create payment intent');
+        }
+
+        const data = await res.json();
+        setClientSecret(data.clientSecret);
+        setPaymentModalOpen(true); // Auto-open modal on load
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to initialize payment');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    createPaymentIntent();
+  }, [])
 
   return (
     <div className="min-h-screen bg-white">
@@ -201,6 +351,49 @@ export default function Home() {
           </div>
         </div>
       </Dialog>
+
+      {/* Payment Modal */}
+      {paymentModalOpen && clientSecret && (
+        <div
+          onClick={() => setPaymentModalOpen(false)}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-5 z-50"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl p-8"
+          >
+            <button
+              onClick={() => setPaymentModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl leading-none p-1"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-2xl font-bold mb-2 text-gray-900">
+              Confirm Late Checkout
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Complete your payment to extend your checkout time until 1:00 PM.
+            </p>
+
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret,
+                appearance: {
+                  theme: 'stripe',
+                  variables: {
+                    colorPrimary: '#4f46e5',
+                  },
+                },
+                paymentMethodOrder: ['card'],
+              }}
+            >
+              <CheckoutForm onClose={() => setPaymentModalOpen(false)} />
+            </Elements>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
