@@ -211,157 +211,178 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-neutral-200">
+        <nav className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex h-20 items-center justify-between">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-indigo-600">Grand Hotel</h1>
+              <h1 className="text-xl font-light tracking-wider text-neutral-900 uppercase">The Grand</h1>
             </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <a href="#" className="rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100">Rooms</a>
-                <a href="#" className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Amenities</a>
-                <a href="#" className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Dining</a>
-                <a href="#" className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Contact</a>
-                <button className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Book Now</button>
-              </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#rooms" className="text-sm font-light text-neutral-700 hover:text-neutral-900 transition-colors">Rooms</a>
+              <a href="#dining" className="text-sm font-light text-neutral-700 hover:text-neutral-900 transition-colors">Dining</a>
+              <a href="#experiences" className="text-sm font-light text-neutral-700 hover:text-neutral-900 transition-colors">Experiences</a>
+              <a href="#contact" className="text-sm font-light text-neutral-700 hover:text-neutral-900 transition-colors">Contact</a>
+              <button
+                onClick={() => setOpen(true)}
+                className="ml-6 px-6 py-2.5 text-sm font-light text-white bg-neutral-900 hover:bg-neutral-800 transition-colors"
+              >
+                Concierge
+              </button>
             </div>
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <div className="relative bg-gray-900">
-        <div className="absolute inset-0">
-          <div className="h-full w-full bg-gradient-to-r from-indigo-500 to-purple-600 opacity-75"></div>
+      <div className="relative h-screen pt-20">
+        <div className="absolute inset-0 bg-neutral-900">
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/40 to-neutral-900/80"></div>
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">Experience Luxury Like Never Before</h1>
-          <p className="mt-6 max-w-3xl text-xl text-gray-100">Discover the perfect blend of comfort, elegance, and world-class service at Grand Hotel. Your unforgettable stay begins here.</p>
-          <div className="mt-10 flex gap-4">
-            <button className="rounded-md bg-white px-8 py-3 text-base font-medium text-indigo-600 hover:bg-gray-50">Explore Rooms</button>
-            <button
-              onClick={() => setOpen(true)}
-              className="rounded-md bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700"
-            >
-              Chat with us
-            </button>
+        <div className="relative h-full flex items-center justify-center px-6">
+          <div className="text-center max-w-4xl">
+            <h1 className="text-5xl md:text-7xl font-light tracking-tight text-white mb-6">
+              A home for the<br />modern traveller
+            </h1>
+            <p className="text-lg md:text-xl font-light text-neutral-300 mb-12 max-w-2xl mx-auto">
+              Heritage craftsmanship meets contemporary design in the heart of the city
+            </p>
+            <div className="flex gap-4 justify-center">
+              <button className="px-10 py-4 text-sm font-light text-neutral-900 bg-white hover:bg-neutral-100 transition-colors">
+                Book a Room
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="bg-white py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-indigo-600">World-Class Amenities</h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Everything you need for a perfect stay</p>
-            <p className="mt-6 text-lg leading-8 text-gray-600">From luxurious spa treatments to fine dining experiences, we offer everything you need to relax and rejuvenate.</p>
+      {/* Philosophy Section */}
+      <div className="bg-white py-32">
+        <div className="mx-auto max-w-4xl px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-light tracking-tight text-neutral-900 mb-6">
+              Everything you need.<br />Nothing you don&apos;t.
+            </h2>
+            <p className="text-lg font-light text-neutral-600 leading-relaxed max-w-2xl mx-auto">
+              We believe in intentional hospitality. Each detail carefully considered,
+              each element purposefully placed to create an experience of refined simplicity.
+            </p>
           </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-              <div className="flex flex-col">
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                  <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-                    <span className="text-white text-xl">🏊</span>
-                  </div>
-                  Infinity Pool
-                </dt>
-                <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                  <p className="flex-auto">Relax in our rooftop infinity pool with stunning city views. Open 24/7 for your convenience.</p>
-                </dd>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div className="bg-neutral-50 py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="mb-6">
+                <div className="inline-block text-4xl">🏛️</div>
               </div>
-              <div className="flex flex-col">
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                  <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-                    <span className="text-white text-xl">🍽️</span>
-                  </div>
-                  Fine Dining
-                </dt>
-                <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                  <p className="flex-auto">Experience culinary excellence at our Michelin-starred restaurant featuring international cuisine.</p>
-                </dd>
+              <h3 className="text-lg font-light text-neutral-900 mb-3">Heritage Architecture</h3>
+              <p className="text-sm font-light text-neutral-600 leading-relaxed">
+                Victorian elegance reimagined for the contemporary traveler
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mb-6">
+                <div className="inline-block text-4xl">🍷</div>
               </div>
-              <div className="flex flex-col">
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                  <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-                    <span className="text-white text-xl">💆</span>
-                  </div>
-                  Luxury Spa
-                </dt>
-                <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                  <p className="flex-auto">Rejuvenate your body and mind at our award-winning spa with expert therapists and treatments.</p>
-                </dd>
+              <h3 className="text-lg font-light text-neutral-900 mb-3">Curated Dining</h3>
+              <p className="text-sm font-light text-neutral-600 leading-relaxed">
+                Seasonal menus crafted from locally sourced ingredients
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mb-6">
+                <div className="inline-block text-4xl">🎨</div>
               </div>
-            </dl>
+              <h3 className="text-lg font-light text-neutral-900 mb-3">Art & Culture</h3>
+              <p className="text-sm font-light text-neutral-600 leading-relaxed">
+                Rotating exhibitions from emerging and established artists
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Rooms Section */}
-      <div className="bg-gray-50 py-24 sm:py-32">
+      <div id="rooms" className="bg-white py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our Rooms</h2>
-            <p className="mt-6 text-lg leading-8 text-gray-600">Choose from our selection of beautifully designed rooms and suites</p>
+          <div className="mb-20">
+            <h2 className="text-3xl md:text-4xl font-light tracking-tight text-neutral-900 mb-4">Rooms & Suites</h2>
+            <p className="text-lg font-light text-neutral-600">Thoughtfully designed spaces for rest and reflection</p>
           </div>
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-8">
-            <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
-              <div className="h-48 w-full bg-gradient-to-br from-blue-400 to-blue-600"></div>
-              <div className="p-8">
-                <h3 className="text-xl font-semibold text-gray-900">Deluxe Room</h3>
-                <p className="mt-2 text-gray-600">Spacious room with king-size bed, city views, and modern amenities.</p>
-                <p className="mt-4 text-2xl font-bold text-indigo-600">$299/night</p>
-                <button className="mt-6 w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">View Details</button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="group">
+              <div className="aspect-[4/5] bg-neutral-200 mb-6 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-400 group-hover:scale-105 transition-transform duration-500"></div>
               </div>
+              <h3 className="text-xl font-light text-neutral-900 mb-2">Classic Room</h3>
+              <p className="text-sm font-light text-neutral-600 mb-4 leading-relaxed">
+                Refined simplicity with curated furnishings and natural light
+              </p>
+              <p className="text-lg font-light text-neutral-900">From £245</p>
             </div>
-            <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
-              <div className="h-48 w-full bg-gradient-to-br from-purple-400 to-purple-600"></div>
-              <div className="p-8">
-                <h3 className="text-xl font-semibold text-gray-900">Executive Suite</h3>
-                <p className="mt-2 text-gray-600">Luxury suite with separate living area, premium bedding, and workspace.</p>
-                <p className="mt-4 text-2xl font-bold text-indigo-600">$499/night</p>
-                <button className="mt-6 w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">View Details</button>
+            <div className="group">
+              <div className="aspect-[4/5] bg-neutral-200 mb-6 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-neutral-400 to-neutral-500 group-hover:scale-105 transition-transform duration-500"></div>
               </div>
+              <h3 className="text-xl font-light text-neutral-900 mb-2">Superior Room</h3>
+              <p className="text-sm font-light text-neutral-600 mb-4 leading-relaxed">
+                Spacious accommodations with workspace and city views
+              </p>
+              <p className="text-lg font-light text-neutral-900">From £345</p>
             </div>
-            <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
-              <div className="h-48 w-full bg-gradient-to-br from-pink-400 to-pink-600"></div>
-              <div className="p-8">
-                <h3 className="text-xl font-semibold text-gray-900">Presidential Suite</h3>
-                <p className="mt-2 text-gray-600">Ultimate luxury with panoramic views, private terrace, and butler service.</p>
-                <p className="mt-4 text-2xl font-bold text-indigo-600">$899/night</p>
-                <button className="mt-6 w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">View Details</button>
+            <div className="group">
+              <div className="aspect-[4/5] bg-neutral-200 mb-6 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-neutral-500 to-neutral-600 group-hover:scale-105 transition-transform duration-500"></div>
               </div>
+              <h3 className="text-xl font-light text-neutral-900 mb-2">Signature Suite</h3>
+              <p className="text-sm font-light text-neutral-600 mb-4 leading-relaxed">
+                Ultimate comfort with separate living area and private terrace
+              </p>
+              <p className="text-lg font-light text-neutral-900">From £545</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900">
-        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <footer id="contact" className="bg-neutral-900 text-white py-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
             <div>
-              <h3 className="text-lg font-semibold text-white">Grand Hotel</h3>
-              <p className="mt-4 text-gray-400">Experience luxury and comfort in the heart of the city.</p>
+              <h3 className="text-lg font-light tracking-wider uppercase mb-6">The Grand</h3>
+              <p className="text-sm font-light text-neutral-400 leading-relaxed">
+                A carefully curated hotel experience in the heart of the city.
+              </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Contact</h3>
-              <p className="mt-4 text-gray-400">123 Luxury Avenue<br/>New York, NY 10001<br/>Phone: (555) 123-4567</p>
+              <h3 className="text-sm font-light tracking-wider uppercase text-neutral-400 mb-6">Visit</h3>
+              <p className="text-sm font-light text-neutral-300 leading-relaxed">
+                123 Heritage Lane<br/>
+                London, W1K 4PL<br/>
+                United Kingdom
+              </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Follow Us</h3>
-              <div className="mt-4 flex space-x-6">
-                <a href="#" className="text-gray-400 hover:text-gray-300">Facebook</a>
-                <a href="#" className="text-gray-400 hover:text-gray-300">Instagram</a>
-                <a href="#" className="text-gray-400 hover:text-gray-300">Twitter</a>
+              <h3 className="text-sm font-light tracking-wider uppercase text-neutral-400 mb-6">Connect</h3>
+              <div className="space-y-3">
+                <p className="text-sm font-light text-neutral-300">reservations@thegrand.com</p>
+                <p className="text-sm font-light text-neutral-300">+44 20 7123 4567</p>
+                <div className="flex space-x-6 pt-4">
+                  <a href="#" className="text-sm font-light text-neutral-400 hover:text-white transition-colors">Instagram</a>
+                  <a href="#" className="text-sm font-light text-neutral-400 hover:text-white transition-colors">Twitter</a>
+                </div>
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-gray-800 pt-8">
-            <p className="text-center text-gray-400">&copy; 2025 Grand Hotel. All rights reserved.</p>
+          <div className="pt-8 border-t border-neutral-800">
+            <p className="text-xs font-light text-neutral-500 text-center">
+              © 2025 The Grand. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
