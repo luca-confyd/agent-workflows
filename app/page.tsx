@@ -193,7 +193,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="relative flex h-full flex-1">
-                    <VoiceChatDrawer />
+                    <VoiceChatDrawer isOpen={open} />
                   </div>
                 </div>
               </DialogPanel>

@@ -106,7 +106,11 @@ const ChatAction = ({
   return button
 }
 
-export default function VoiceChatDrawer() {
+interface VoiceChatDrawerProps {
+  isOpen: boolean
+}
+
+export default function VoiceChatDrawer({ isOpen }: VoiceChatDrawerProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [agentState, setAgentState] = useState<
     "disconnected" | "connecting" | "connected" | "disconnecting" | null
@@ -115,9 +119,20 @@ export default function VoiceChatDrawer() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const mediaStreamRef = useRef<MediaStream | null>(null)
-  const isTextOnlyModeRef = useRef<boolean>(true)
+  const isTextOnlyModeRef = useRef<boolean>(false)
 
   const conversation = useConversation({
+    clientTools: {
+      stripe_checkout: async (parameters: { amount?: number; description?: string }) => {
+        console.log("🛒 Stripe Checkout Client Tool Called!")
+        console.log("Parameters:", parameters)
+        console.log("Amount:", parameters.amount || "Not provided")
+        console.log("Description:", parameters.description || "Not provided")
+
+        // Return a confirmation message to the agent
+        return `Checkout initiated for ${parameters.description || "purchase"} - Amount: $${parameters.amount || 0}`
+      }
+    },
     onConnect: () => {
       if (!isTextOnlyModeRef.current) {
         setMessages([])
@@ -267,6 +282,31 @@ export default function VoiceChatDrawer() {
     },
     [handleSendText]
   )
+
+  // Auto-connect when drawer opens, disconnect when it closes
+  useEffect(() => {
+    const handleAutoConnect = async () => {
+      if (isOpen && agentState === "disconnected") {
+        setAgentState("connecting")
+        try {
+          await startConversation(false) // Start voice call immediately
+        } catch (error) {
+          console.error("Failed to auto-connect:", error)
+          setAgentState("disconnected")
+        }
+      } else if (!isOpen && (agentState === "connected" || agentState === "connecting")) {
+        conversation.endSession()
+        setAgentState("disconnected")
+
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((t) => t.stop())
+          mediaStreamRef.current = null
+        }
+      }
+    }
+
+    handleAutoConnect()
+  }, [isOpen, agentState, conversation, startConversation])
 
   useEffect(() => {
     return () => {
