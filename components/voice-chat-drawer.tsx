@@ -131,8 +131,13 @@ export default function VoiceChatDrawer({ isOpen, onClose }: VoiceChatDrawerProp
         console.log("Amount:", parameters.amount || "Not provided")
         console.log("Description:", parameters.description || "Not provided")
 
+        // Trigger the payment modal
+        if (typeof window !== 'undefined' && (window as any).openPaymentModal) {
+          (window as any).openPaymentModal(parameters.amount || 5000)
+        }
+
         // Return a confirmation message to the agent
-        return `Checkout initiated for ${parameters.description || "purchase"} - Amount: $${parameters.amount || 0}`
+        return `Opening payment checkout for ${parameters.description || "late checkout"}. Amount: £${(parameters.amount || 5000) / 100}`
       }
     },
     onConnect: () => {
