@@ -36,6 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { BarVisualizer } from "@/components/ui/bar-visualizer"
 
 type SystemMessageType = "initial" | "connecting" | "connected" | "error"
 
@@ -106,7 +107,12 @@ const ChatAction = ({
   return button
 }
 
-export default function VoiceChatDrawer() {
+interface VoiceChatDrawerProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export default function VoiceChatDrawer({ isOpen, onClose }: VoiceChatDrawerProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [agentState, setAgentState] = useState<
     "disconnected" | "connecting" | "connected" | "disconnecting" | null
@@ -115,9 +121,20 @@ export default function VoiceChatDrawer() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const mediaStreamRef = useRef<MediaStream | null>(null)
-  const isTextOnlyModeRef = useRef<boolean>(true)
+  const isTextOnlyModeRef = useRef<boolean>(false)
 
   const conversation = useConversation({
+    clientTools: {
+      stripe_checkout: async (parameters: { amount?: number; description?: string }) => {
+        console.log("🛒 Stripe Checkout Client Tool Called!")
+        console.log("Parameters:", parameters)
+        console.log("Amount:", parameters.amount || "Not provided")
+        console.log("Description:", parameters.description || "Not provided")
+
+        // Return a confirmation message to the agent
+        return `Checkout initiated for ${parameters.description || "purchase"} - Amount: $${parameters.amount || 0}`
+      }
+    },
     onConnect: () => {
       if (!isTextOnlyModeRef.current) {
         setMessages([])
@@ -216,8 +233,11 @@ export default function VoiceChatDrawer() {
         mediaStreamRef.current.getTracks().forEach((t) => t.stop())
         mediaStreamRef.current = null
       }
+
+      // Close the drawer when ending the call
+      onClose()
     }
-  }, [agentState, conversation, startConversation])
+  }, [agentState, conversation, startConversation, onClose])
 
   const handleTextInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,6 +287,31 @@ export default function VoiceChatDrawer() {
     },
     [handleSendText]
   )
+
+  // Auto-connect when drawer opens, disconnect when it closes
+  useEffect(() => {
+    const handleAutoConnect = async () => {
+      if (isOpen && agentState === "disconnected") {
+        setAgentState("connecting")
+        try {
+          await startConversation(false) // Start voice call immediately
+        } catch (error) {
+          console.error("Failed to auto-connect:", error)
+          setAgentState("disconnected")
+        }
+      } else if (!isOpen && (agentState === "connected" || agentState === "connecting")) {
+        conversation.endSession()
+        setAgentState("disconnected")
+
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((t) => t.stop())
+          mediaStreamRef.current = null
+        }
+      }
+    }
+
+    handleAutoConnect()
+  }, [isOpen, agentState, conversation, startConversation])
 
   useEffect(() => {
     return () => {
@@ -341,25 +386,29 @@ export default function VoiceChatDrawer() {
         <Conversation className="h-full">
           <ConversationContent className="flex min-w-0 flex-col gap-2 p-6 pb-2">
             {messages.length === 0 ? (
-              <ConversationEmptyState
-                icon={<Orb className="size-12" />}
-                title={
-                  agentState === "connecting" ? (
-                    <ShimmeringText text="Starting conversation" />
-                  ) : agentState === "connected" ? (
-                    <ShimmeringText text="Start talking or type" />
-                  ) : (
-                    "Start a conversation"
-                  )
-                }
-                description={
-                  agentState === "connecting"
-                    ? "Connecting..."
-                    : agentState === "connected"
-                      ? "Ready to chat"
+              agentState === "connecting" ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <BarVisualizer
+                    state="connecting"
+                    demo={true}
+                    barCount={20}
+                    centerAlign={true}
+                    className="bg-transparent border-0 shadow-none w-full"
+                  />
+                </div>
+              ) : (
+                <ConversationEmptyState
+                  icon={<Orb className="size-12" />}
+                  title={
+                    agentState === "connected" ? "" : "Start a conversation"
+                  }
+                  description={
+                    agentState === "connected"
+                      ? ""
                       : "Type a message or tap the voice button"
-                }
-              />
+                  }
+                />
+              )
             ) : (
               messages.map((message, index) => {
                 return (
