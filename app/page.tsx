@@ -33,7 +33,13 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
       setErrorMessage(error.message || 'An error occurred');
       setIsProcessing(false);
     } else {
-      window.location.href = `${window.location.origin}/success`;
+      // Payment successful - close modal and send user message
+      if (typeof window !== 'undefined' && (window as any).sendAgentUserMessage) {
+        (window as any).sendAgentUserMessage('Payment completed successfully for £50 late checkout.');
+      }
+      if (typeof window !== 'undefined' && (window as any).closePaymentModal) {
+        (window as any).closePaymentModal('completed');
+      }
     }
   };
 
@@ -52,11 +58,20 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
       confirmParams: {
         return_url: `${window.location.origin}/success`,
       },
+      redirect: 'if_required',
     });
 
     if (error) {
       setErrorMessage(error.message || 'An error occurred');
       setIsProcessing(false);
+    } else {
+      // Payment successful - close modal and send user message
+      if (typeof window !== 'undefined' && (window as any).sendAgentUserMessage) {
+        (window as any).sendAgentUserMessage('Payment completed successfully for £50 late checkout.');
+      }
+      if (typeof window !== 'undefined' && (window as any).closePaymentModal) {
+        (window as any).closePaymentModal('completed');
+      }
     }
   };
 
