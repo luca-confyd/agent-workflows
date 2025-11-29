@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import VoiceChatDrawer from '@/components/voice-chat-drawer'
 
 export default function Home() {
   const [open, setOpen] = useState(false)
@@ -191,29 +192,8 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className="relative mt-6 flex-1 px-4 sm:px-6">
-                    <div className="flex flex-col space-y-4">
-                      <p className="text-sm text-gray-600">Hello! How can we assist you today?</p>
-                      <div className="flex flex-col space-y-3">
-                        <div className="rounded-lg bg-gray-100 p-4">
-                          <p className="text-sm font-medium text-gray-900">Quick Questions</p>
-                          <div className="mt-3 space-y-2">
-                            <button className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-                              Check room availability
-                            </button>
-                            <button className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-                              Book a spa appointment
-                            </button>
-                            <button className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-                              Restaurant reservations
-                            </button>
-                            <button className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-                              Special requests
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="relative flex h-full flex-1">
+                    <VoiceChatDrawer />
                   </div>
                 </div>
               </DialogPanel>
