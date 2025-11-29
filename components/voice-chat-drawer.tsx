@@ -326,15 +326,19 @@ export default function VoiceChatDrawer({ isOpen, onClose }: VoiceChatDrawerProp
     handleAutoConnect()
   }, [isOpen, agentState, conversation, startConversation])
 
-  // Expose sendContextualUpdate globally for payment modal
+  // Expose sendContextualUpdate and sendUserActivity globally for payment modal
   useEffect(() => {
     (window as any).sendAgentContextualUpdate = (message: string) => {
       conversation.sendContextualUpdate?.(message);
+    };
+
+    (window as any).sendAgentUserActivity = () => {
       conversation.sendUserActivity?.();
     };
 
     return () => {
       delete (window as any).sendAgentContextualUpdate;
+      delete (window as any).sendAgentUserActivity;
     };
   }, [conversation]);
 

@@ -171,6 +171,20 @@ export default function Home() {
     }
   };
 
+  // Send periodic user activity while modal is open to prevent agent interruption
+  useEffect(() => {
+    if (!paymentModalOpen) return;
+
+    // Send user activity every 2 seconds while modal is open
+    const interval = setInterval(() => {
+      if (typeof window !== 'undefined' && (window as any).sendAgentUserActivity) {
+        (window as any).sendAgentUserActivity();
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [paymentModalOpen]);
+
   // Make functions available globally for the voice agent
   useEffect(() => {
     (window as any).openPaymentModal = openPaymentModal;
