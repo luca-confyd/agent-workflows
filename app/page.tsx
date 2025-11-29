@@ -323,7 +323,16 @@ export default function Home() {
       </footer>
 
       {/* Chat Drawer */}
-      <Dialog open={open} onClose={setOpen} className="relative z-10">
+      <Dialog
+        open={open}
+        onClose={() => {
+          // Prevent closing drawer if payment modal is open
+          if (!paymentModalOpen) {
+            setOpen(false);
+          }
+        }}
+        className="relative z-10"
+      >
         <div className="fixed inset-0" />
 
         <div className="fixed inset-0 overflow-hidden">
@@ -340,8 +349,14 @@ export default function Home() {
                       <div className="ml-3 flex h-7 items-center">
                         <button
                           type="button"
-                          onClick={() => setOpen(false)}
+                          onClick={() => {
+                            // Prevent closing drawer if payment modal is open
+                            if (!paymentModalOpen) {
+                              setOpen(false);
+                            }
+                          }}
                           className="relative rounded-md text-gray-400 hover:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                          disabled={paymentModalOpen}
                         >
                           <span className="absolute -inset-2.5" />
                           <span className="sr-only">Close panel</span>
@@ -351,7 +366,15 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="relative flex h-full flex-1">
-                    <VoiceChatDrawer isOpen={open} onClose={() => setOpen(false)} />
+                    <VoiceChatDrawer
+                      isOpen={open}
+                      onClose={() => {
+                        // Prevent closing drawer if payment modal is open
+                        if (!paymentModalOpen) {
+                          setOpen(false);
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               </DialogPanel>
@@ -361,15 +384,11 @@ export default function Home() {
       </Dialog>
 
       {/* Payment Modal */}
-      {paymentModalOpen && clientSecret && (
-        <div
-          onClick={() => setPaymentModalOpen(false)}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-5 z-50"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl p-8"
-          >
+      <Dialog open={paymentModalOpen && !!clientSecret} onClose={() => setPaymentModalOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+        <div className="fixed inset-0 flex items-center justify-center p-5">
+          <DialogPanel className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-8">
             <button
               onClick={() => setPaymentModalOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl leading-none p-1"
@@ -377,31 +396,33 @@ export default function Home() {
               ✕
             </button>
 
-            <h2 className="text-2xl font-bold mb-2 text-gray-900">
+            <DialogTitle className="text-2xl font-bold mb-2 text-gray-900">
               Confirm Late Checkout
-            </h2>
+            </DialogTitle>
             <p className="text-sm text-gray-600 mb-6">
-              Complete your payment to extend your checkout time until 1:00 PM.
+              Complete your payment to extend your checkout time until 3:00 PM.
             </p>
 
-            <Elements
-              stripe={stripePromise}
-              options={{
-                clientSecret,
-                appearance: {
-                  theme: 'stripe',
-                  variables: {
-                    colorPrimary: '#4f46e5',
+            {clientSecret && (
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  clientSecret,
+                  appearance: {
+                    theme: 'stripe',
+                    variables: {
+                      colorPrimary: '#4f46e5',
+                    },
                   },
-                },
-                paymentMethodOrder: ['card'],
-              }}
-            >
-              <CheckoutForm onClose={() => setPaymentModalOpen(false)} />
-            </Elements>
-          </div>
+                  paymentMethodOrder: ['card'],
+                }}
+              >
+                <CheckoutForm onClose={() => setPaymentModalOpen(false)} />
+              </Elements>
+            )}
+          </DialogPanel>
         </div>
-      )}
+      </Dialog>
     </div>
   );
 }
